@@ -15,7 +15,7 @@ namespace Practical2022_Blazor.Models
         public int Id { get; set; }
 
         [Required, StringLength(50)]
-        [JsonPropertyName("firstname")]
+        [JsonPropertyName("firstName")]
         public string FirstName { get; set; }
 
         [Required, StringLength(50)]
