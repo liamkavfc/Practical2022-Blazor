@@ -1,7 +1,128 @@
 ﻿@page "/"
+@using Practical2022_Blazor.Models;
+@inject Practical2022_Blazor.Api.ContactsController _contactsController;
 
-<h1>Hello, world!</h1>
+<h1>Contacts</h1>
 
-Welcome to your new app.
+<input @bind-value="search" />
+<button @onclick="@GetContactsBySearch">Search!</button>
+<button type="button" class="btn btn-warning" @onclick="GetAllContacts">Reset</button>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">DOB</th>
+            <th scope="col">School</th>
+            <th scope="col">Phone No.</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ContactModel contact in contacts)
+        {
+        <tr>
+            <td>@contact.Id</td>
+            <td>@contact.FirstName</td>
+            <td>@contact.LastName</td>
+            <td>@contact.DateOfBirth</td>
+            <td>@contact.School</td>
+            <td>@contact.PhoneNumber</td>
+            <td>
+            <button type="button" class="btn btn-danger" @onclick="@(e => RemoveContact(@contact.Id))">Remove</button>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+    
+
+
+    @code{
+        /// <summary>
+        /// Contacts List.
+        /// </summary>
+        private List<ContactModel> contacts = new List<ContactModel>();
+
+        /// <summary>
+        /// Search string.
+        /// </summary>
+        private string search;
+
+        /// <summary>
+        /// Run After Render.
+        /// </summary>
+        /// <param name="firstRender">First render bool</param>
+        /// <returns>Task</returns>
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await GetAllContacts();
+            }
+
+
+            await base.OnAfterRenderAsync(firstRender);
+        }
+
+        /// <summary>
+        /// Gets all contacts.
+        /// </summary>
+        /// <returns>Task.</returns>
+        private async Task GetAllContacts()
+        {
+            contacts = await _contactsController.GetAllContacts();
+
+            StateHasChanged();
+        }
+
+        /// <summary>
+        /// Gets contacts matching the search string.
+        /// </summary>
+        /// <returns>Task.</returns>
+        protected async Task GetContactsBySearch()
+        {
+            if (search != "")
+            {
+                IEnumerable<ContactModel> firstNameResults = null;
+                IEnumerable<ContactModel> lastNameResults = null;
+
+                // split search string
+                var searchArray = search.Split(" ");
+
+                // Loops through all search words.
+                foreach (var searchQuery in searchArray)
+                {
+                    firstNameResults = contacts.Where(c => c.FirstName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
+
+                    lastNameResults = contacts.Where(c => c.LastName.Contains(searchQuery,
+                        StringComparison.OrdinalIgnoreCase));
+                }
+
+
+                var results = firstNameResults.Union(lastNameResults);
+
+                contacts = results.ToList();
+
+                StateHasChanged();
+
+            }
+            else
+            {
+                // get all contacts if search is empty.
+                await GetAllContacts();
+            }
+
+        }
+
+        /// <summary>
+        /// Remove selected contact.
+        /// </summary>
+        /// <param name="id">Id of contact.</param>
+        protected void RemoveContact(int id)
+        {
+            contacts.RemoveAll(c => c.Id == id);
+        }
+    }

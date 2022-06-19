@@ -6,4 +6,18 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'Practical2022-Blazor' " />
+  <ItemGroup>
+    <None Remove="Controllers\" />
+    <None Remove="Models\" />
+    <None Remove="GenFu" />
+    <None Remove="Microsoft.AspNet.WebApi.Client" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="GenFu" Version="1.6.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.9" />
+  </ItemGroup>
 </Project>
